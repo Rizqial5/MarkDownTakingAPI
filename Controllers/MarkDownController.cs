@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Markdig;
 using SQLitePCL;
 using System.ComponentModel;
+using System.Text;
+using System.Security;
 
 namespace MarkDownTaking.API.Controllers
 {
@@ -24,22 +26,13 @@ namespace MarkDownTaking.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MDData>>> GetAll()
         {
-            var allFiles = await _context.MDDatas.Select(data => new ShowData
-            {
+           
+
+
+            var allFiles = await _context.MDDatas.Select(data=> new ShowListData{
                 Id = data.Id,
-                Title = data.Title!,
-                ItemType = data.ContentType,
-                ItemSize = data.FileSize,
-                
-
-                
-
-
+                Title = data.Title
             }).ToListAsync();
-
-            
-            
-                
 
             return Ok(allFiles) ;
         }
@@ -50,6 +43,8 @@ namespace MarkDownTaking.API.Controllers
             var selectedData = await _context.MDDatas.FirstOrDefaultAsync(p=> p.Id == id);
 
             var htmlConvertFile = Markdown.ToHtml(selectedData!.MDString!);
+
+            
 
             var showedData = new ShowData{
                 Id = selectedData!.Id,
@@ -109,6 +104,16 @@ namespace MarkDownTaking.API.Controllers
 
             return Ok(new{message = "File Uploaded Succesfully"});
         }
+
+        [HttpPost("md-generate")]
+        public IActionResult GenerateMDFile(RequestContent inputText)
+        {
+            if(string.IsNullOrWhiteSpace(inputText.Content)) return BadRequest("Text cannot be empty");
+
+            var byteArray = Encoding.UTF8.GetBytes(inputText.Content);
+
+            return File(byteArray, "text/markdown",$"{inputText.NameFile}.md");
+        }
         
 
         
@@ -127,5 +132,17 @@ namespace MarkDownTaking.API.Controllers
         {
             return dataInput.ToString()!;
         }
+    }
+
+    public class ShowListData
+    {
+        public int Id {set;get;}
+        public string? Title {set;get;}
+    }
+
+    public class RequestContent
+    {
+        public string? NameFile {set;get;}
+        public string? Content{set;get;}
     }
 }
