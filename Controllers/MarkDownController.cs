@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Markdig;
+using SQLitePCL;
 
 namespace MarkDownTaking.API.Controllers
 {
@@ -22,17 +23,32 @@ namespace MarkDownTaking.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MDData>>> GetAll()
         {
-            return await _context.MDDatas.ToListAsync();
+            var allFiles = await _context.MDDatas.Select(data => new ShowData
+            {
+                Id = data.Id,
+                Title = data.Title,
+                ItemType = data.ContentType,
+                ItemSize = data.FileSize
+
+
+            }).ToListAsync();
+
+
+            return Ok(allFiles) ;
         }
 
         [HttpPost("upload")]
         public async Task<ActionResult> PostMdFile( IFormFile fileUpload)
         {
-            if(fileUpload == null || fileUpload.Length == 0)
-            {
-                return BadRequest("No file uploaded");
-            }
+            if(fileUpload == null || fileUpload.Length == 0)  return BadRequest("No file uploaded");
+            
+            string permittedExtension =  ".md";
 
+            var extension = Path.GetExtension(fileUpload.FileName).ToLowerInvariant();
+
+            if(!permittedExtension.Contains(extension)) return BadRequest("Wrong file extension must MarkDown File");
+
+    
             using (var memoryStream = new MemoryStream())
             {
                 await fileUpload.CopyToAsync(memoryStream);
@@ -59,16 +75,11 @@ namespace MarkDownTaking.API.Controllers
         
     }
 
-    public class BufferedModelUpload
+    public class ShowData
     {
-        [BindProperty]
-        public SingleFileUpload? FileUpload {get;set;}
-    }
-  
-    public class SingleFileUpload
-    {
-        [Required]
-        [Display(Name = "File")]
-        public IFormFile? FormFile{get;set;}
+        public int Id {set;get;}
+        public string Title{set;get;}
+        public string ItemType{set;get;}
+        public long ItemSize{set;get;}
     }
 }
