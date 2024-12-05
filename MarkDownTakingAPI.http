@@ -1,0 +1,6 @@
+@MarkDownTakingAPI_HostAddress = http://localhost:5057
+
+GET {{MarkDownTakingAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
