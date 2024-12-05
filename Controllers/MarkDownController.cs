@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Markdig;
 using SQLitePCL;
+using System.ComponentModel;
 
 namespace MarkDownTaking.API.Controllers
 {
@@ -28,11 +29,17 @@ namespace MarkDownTaking.API.Controllers
                 Id = data.Id,
                 Title = data.Title!,
                 ItemType = data.ContentType,
-                ItemSize = data.FileSize
+                ItemSize = data.FileSize,
+                
+
+                
 
 
             }).ToListAsync();
 
+            
+            
+                
 
             return Ok(allFiles) ;
         }
@@ -42,12 +49,18 @@ namespace MarkDownTaking.API.Controllers
         {
             var selectedData = await _context.MDDatas.FirstOrDefaultAsync(p=> p.Id == id);
 
+            var htmlConvertFile = Markdown.ToHtml(selectedData!.MDString!);
+
             var showedData = new ShowData{
                 Id = selectedData!.Id,
                 Title = selectedData.Title,
                 ItemType = selectedData.ContentType,
                 ItemSize = selectedData.FileSize,
+                MarkDownFile = htmlConvertFile,
+                
             };
+
+            
 
             return Ok(showedData);
         }
@@ -63,10 +76,13 @@ namespace MarkDownTaking.API.Controllers
 
             if(!permittedExtension.Contains(extension)) return BadRequest("Wrong file extension must MarkDown File");
 
-    
+            
+
             using (var memoryStream = new MemoryStream())
             {
                 await fileUpload.CopyToAsync(memoryStream);
+
+                Console.WriteLine(memoryStream.ToArray().ToString());
 
                 var uploadedFile = new MDData
                 {
@@ -75,6 +91,13 @@ namespace MarkDownTaking.API.Controllers
                     FileSize = fileUpload.Length,
                     MDFile = memoryStream.ToArray()
                 };
+
+                memoryStream.Position = 0;
+
+                using (var reader = new StreamReader(memoryStream))
+                {
+                    uploadedFile.MDString = await reader.ReadToEndAsync();
+                }
 
                 _context.MDDatas.Add(uploadedFile);
 
@@ -86,7 +109,9 @@ namespace MarkDownTaking.API.Controllers
 
             return Ok(new{message = "File Uploaded Succesfully"});
         }
-            
+        
+
+        
         
     }
 
@@ -95,6 +120,12 @@ namespace MarkDownTaking.API.Controllers
         public int Id {set;get;}
         public string? Title{set;get;}
         public string? ItemType{set;get;}
+        public string? MarkDownFile{set;get;}
         public long ItemSize{set;get;}
+
+        public string StringConveter(byte[] dataInput)
+        {
+            return dataInput.ToString()!;
+        }
     }
 }

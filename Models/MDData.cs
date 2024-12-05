@@ -9,5 +9,7 @@ namespace MarkDownTaking.API.Model
         public string? ContentType{set;get;}
         public long FileSize {set;get;}
         public byte[]? MDFile {set; get;}
+        public string? MDString{get;set;}
+
     }
 }
