@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations;
 using MarkDownTaking.API.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Markdig;
 
 namespace MarkDownTaking.API.Controllers
 {
@@ -23,15 +25,50 @@ namespace MarkDownTaking.API.Controllers
             return await _context.MDDatas.ToListAsync();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<MDData>> PostMdFile(MDData mDData)
+        [HttpPost("upload")]
+        public async Task<ActionResult> PostMdFile( IFormFile fileUpload)
         {
-            _context.MDDatas.Add(mDData);
-            await _context.SaveChangesAsync();
+            if(fileUpload == null || fileUpload.Length == 0)
+            {
+                return BadRequest("No file uploaded");
+            }
 
-            return CreatedAtAction("GetMDData", new{id = mDData.Id}, mDData);
+            using (var memoryStream = new MemoryStream())
+            {
+                await fileUpload.CopyToAsync(memoryStream);
+
+                var uploadedFile = new MDData
+                {
+                    Title = fileUpload.FileName,
+                    ContentType = fileUpload.ContentType,
+                    FileSize = fileUpload.Length,
+                    MDFile = memoryStream.ToArray()
+                };
+
+                _context.MDDatas.Add(uploadedFile);
+
+                await _context.SaveChangesAsync();  
+
+            }
+            
+            
+
+            return Ok(new{message = "File Uploaded Succesfully"});
         }
             
         
+    }
+
+    public class BufferedModelUpload
+    {
+        [BindProperty]
+        public SingleFileUpload? FileUpload {get;set;}
+    }
+  
+    public class SingleFileUpload
+    {
+        [Required]
+        [Display(Name = "File")]
+        public IFormFile? FormFile{get;set;}
     }
 }
