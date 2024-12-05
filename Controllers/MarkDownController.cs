@@ -37,6 +37,21 @@ namespace MarkDownTaking.API.Controllers
             return Ok(allFiles) ;
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MDData>> GetById(int id)
+        {
+            var selectedData = await _context.MDDatas.FirstOrDefaultAsync(p=> p.Id == id);
+
+            var showedData = new ShowData{
+                Id = selectedData!.Id,
+                Title = selectedData.Title,
+                ItemType = selectedData.ContentType,
+                ItemSize = selectedData.FileSize,
+            };
+
+            return Ok(showedData);
+        }
+
         [HttpPost("upload")]
         public async Task<ActionResult> PostMdFile( IFormFile fileUpload)
         {
