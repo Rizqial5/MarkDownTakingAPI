@@ -6,7 +6,7 @@ namespace MarkDownTaking.API.Model
     {
         public int Id {set;get;}
         public string? Title {set;get;}
-        public string ContentType{set;get;}
+        public string? ContentType{set;get;}
         public long FileSize {set;get;}
         public byte[]? MDFile {set; get;}
     }
