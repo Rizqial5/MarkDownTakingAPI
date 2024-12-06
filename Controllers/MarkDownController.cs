@@ -4,10 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Markdig;
-using SQLitePCL;
-using System.ComponentModel;
 using System.Text;
-using System.Security;
+using System.Windows.Input;
+
 
 namespace MarkDownTaking.API.Controllers
 {
@@ -59,6 +58,7 @@ namespace MarkDownTaking.API.Controllers
 
             return Ok(showedData);
         }
+
 
         [HttpPost("upload")]
         public async Task<ActionResult> PostMdFile( IFormFile fileUpload)
@@ -144,5 +144,10 @@ namespace MarkDownTaking.API.Controllers
     {
         public string? NameFile {set;get;}
         public string? Content{set;get;}
+    }
+
+    public class WordCheck
+    {
+        public string? Word{set;get;}
     }
 }
