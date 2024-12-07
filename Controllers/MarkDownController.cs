@@ -37,7 +37,7 @@ namespace MarkDownTaking.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MDData>> GetById(int id)
+        public async Task<ActionResult<ShowData>> GetById(int id)
         {
             var selectedData = await _context.MDDatas.FirstOrDefaultAsync(p=> p.Id == id);
 
