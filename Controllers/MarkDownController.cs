@@ -114,6 +114,23 @@ namespace MarkDownTaking.API.Controllers
 
             return File(byteArray, "text/markdown",$"{inputText.NameFile}.md");
         }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+
+            var selectedData =await _context.MDDatas.FirstOrDefaultAsync(d=> d.Id == id);
+
+            if(selectedData == null) return NotFound();
+
+            _context.MDDatas.Remove(selectedData);
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Data deleted");
+            
+
+        }
         
 
         
