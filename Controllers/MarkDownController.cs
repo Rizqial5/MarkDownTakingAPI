@@ -105,7 +105,7 @@ namespace MarkDownTaking.API.Controllers
             return Ok(new{message = "File Uploaded Succesfully"});
         }
 
-        [HttpPost("md-generate")]
+        [HttpPost("generate")]
         public IActionResult GenerateMDFile(RequestContent inputText)
         {
             if(string.IsNullOrWhiteSpace(inputText.Content)) return BadRequest("Text cannot be empty");

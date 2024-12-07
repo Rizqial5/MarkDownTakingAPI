@@ -1,4 +1,6 @@
+using MarkDownTaking.API.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -9,10 +11,12 @@ using System.Threading.Tasks;
 public class GrammarController : ControllerBase
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ApplicationDbContext _context;
 
-    public GrammarController(IHttpClientFactory httpClientFactory)
+    public GrammarController(IHttpClientFactory httpClientFactory, ApplicationDbContext context)
     {
         _httpClientFactory = httpClientFactory;
+        _context = context;
     }
 
     
@@ -24,7 +28,7 @@ public class GrammarController : ControllerBase
             return BadRequest("Content cannot be empty.");
         }
 
-        var client = _httpClientFactory.CreateClient();
+        
 
         var parameters = new Dictionary<string, string>
         {
@@ -33,6 +37,9 @@ public class GrammarController : ControllerBase
         };
 
         var content = new FormUrlEncodedContent(parameters);
+
+        var client = _httpClientFactory.CreateClient();
+
 
         var response = await client.PostAsync("https://api.languagetool.org/v2/check", content);
 
@@ -45,10 +52,9 @@ public class GrammarController : ControllerBase
         var responseContent = await response.Content.ReadAsStringAsync();
        
 
-        
-
         return Ok(responseContent);
     }
+
 
 }
 
