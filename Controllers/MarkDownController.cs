@@ -30,7 +30,9 @@ namespace MarkDownTaking.API.Controllers
 
             var allFiles = await _context.MDDatas.Select(data=> new ShowListData{
                 Id = data.Id,
-                Title = data.Title
+                Title = data.Title,
+                FileSize = data.FileSize
+
             }).ToListAsync();
 
             return Ok(allFiles) ;
@@ -155,6 +157,7 @@ namespace MarkDownTaking.API.Controllers
     {
         public int Id {set;get;}
         public string? Title {set;get;}
+        public long? FileSize{set;get;}
     }
 
     public class RequestContent
